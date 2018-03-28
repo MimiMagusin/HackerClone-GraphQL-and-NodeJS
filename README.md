@@ -8,18 +8,88 @@ Clone the repository and install the dependencies:
 ```
 yarn install
 ```
-Run the dev environment (which allows you to open up the playground):
+Deploy the Prisma database service:
+```
+yarn prisma deploy
+```
+Run the (dev) environment (which allows you to open up the playground):
 
 ```
 yarn dev
 ```
+or
+```
+yarn start
+```
+
+The server is running on `localhost:4000` (and the playground on `localhost:3000/playground` if you run `yarn dev`  )
 <hr/>
 
 > ## Features:
 > This is only a back end, but if it would have a frontend, 
-> - A user could login
-> - It would be kept updated on the last links
-> - A user could post or upvote an article
+> - **A user could signup:**<br/>
+>_try it out by running the following query in the playground:_
+> ```
+>mutation {
+>  signup(email: "yourname@graph.cool" password: "graphql" name: "Grace") {
+>    token
+>    user {
+>      id
+>    }
+>  }
+>}
+>```
+> 
+> - **A user could log in:**<br/>
+>_try it out by running the following query in the playground:_
+> ```
+>mutation {
+>  login(email: "johndoe@graph.cool" password: "graphql") {
+>    token
+>  }
+>}
+>```
+> - **The frontend would be kept updated on changes in the database**
+> - **A user could post or upvote an article** - but only after signing up or logging in!<br/>
+>   - To Post:
+>   ```
+>   mutation{
+>     post(
+>       url: "https:/grapqhlweekly.com"
+>       description: "Weekly GraphQL Newsletter"
+>     ) {
+>       id
+>     }
+>   }
+>   ```
+>   - To verify that it was actually posted by the User who the token belongs to:
+>   ```
+>   {
+>     description
+>     postedBy {
+>       email
+>     }
+>   }
+>   ```
+>   - And to prove it actually exists:
+>   ```
+>   {
+>     feed {
+>       description
+>       url
+>     }
+>   }
+>   ```
+>   - To vote:
+>   ```
+>   mutation{
+>     vote(
+>       linkId: "cjfb2bmgla2rg0b97mtz9htmb"
+>     ) {
+>       id
+>     }
+>   }
+>   ```
 >
 > Enjoy!
 
@@ -38,8 +108,12 @@ Once a schema is defined, frontend and backend teams can work independently from
 
 GraphQL is placed between your Client(s) and your database or API(s). The client talks to GraphQL, Graphql talks to the backend/db.
 
+> In this project, we are using graphql as a backend so it is talking directly to the database.
+
 ## Which steps to take...
-When building a server, you are basically constantly defining your query and mutation types (and possibly more specific types such as **user** and **link** in this repository) in `src/schema.graphql`, build build a resolver for it in the corresponding `resolver file`.
+When building a server, you are basically constantly defining your query and mutation types (and possibly more specific types such as **user** and **link** in this repository - which is called **_adding root fields_**) in `src/schema.graphql`, build a resolver for it in the corresponding `resolver file`.
+
+> Extra steps in this project are to add the data types to the `database/datamodel.graphql` and deploy the prisma database to make sure we can communicate with the Prisma database.
 
 ## Schemas and Types
 

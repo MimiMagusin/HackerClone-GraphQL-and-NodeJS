@@ -49,8 +49,14 @@ The server is running on `localhost:4000` (and the playground on `localhost:3000
 >  }
 >}
 >```
-> - **The frontend would be kept updated on changes in the database**
+> - **Subscribed clients would be sent realtime updates when a new link element is created or when an existing link is upvoted**
 > - **A user could post or upvote an article** - but only after signing up or logging in!<br/>
+>   - After siging up/logging in, copy the `token`  from the JSON response of the server and use it to replace the `__TOKEN__` placeholder in the following HTTP header. This header needs to be put into the HTTP HEADERS pane in the bottoms-left corner of the playground:
+>```
+>{
+>  "Authorization": "Bearer __TOKEN__"
+>}
+>```
 >   - To Post:
 >   ```
 >   mutation{
@@ -84,12 +90,27 @@ The server is running on `localhost:4000` (and the playground on `localhost:3000
 >   ```
 >   mutation{
 >     vote(
->       linkId: "cjfb2bmgla2rg0b97mtz9htmb"
+>       linkId: "cjfb2bmgla2rg0b97mtz9htmb" 
 >     ) {
 >       id
 >     }
 >   }
 >   ```
+>- **Subscribed clients would be sent realtime updates when a new link element is created or when an existing link is upvoted**:
+>```
+>subscription {
+>  newLink {
+>    node {
+>      description
+>      url
+>      postedBy {
+>        email
+>      }
+>    }
+>  }
+>}
+>```
+> _To check, in a new tab of the playground, post a new link!_
 >
 > Enjoy!
 
@@ -118,17 +139,24 @@ When building a server, you are basically constantly defining your query and mut
 ## Schemas and Types
 
 ### Types
- GraphQL query language is basically about selecting fields on objects. You start with a root object, select a field on that, explain what the field should return.
-The most basic components of a GraphQL schema are **object types**, which just represent a kind of object you can fetch from your service, and what fields it has.
+ The GraphQL query language is basically about selecting fields on objects. You start with a root object, select a field on that, explain what the field should return.
+The most basic components of a GraphQL schema are **object types**, which just represent a kind of object you can fetch from your service, and what fields it has. A **Schema** consists of:
+- Type definitions to describe our data and what we can do with it
+- Resolvers to tell GraphQL where to get the data from and how to handle mutations
+>Int this project you can find all type defitions not only in the schema, but also in `database/datamodel.graphql`!
 
 ### Arguments
 **Arguments** can be required or optional. When an argument is optional, you can define a default value.
 
-### query & mutation types
-Every GraphQL service has a query type and possibly a **mutation type**. 
+### Query & mutation types
+Every GraphQL service has a **query type** and possibly a **mutation type**, that can be found in the schema.
+
+>In this project, we define the following types in our schema: `Query`, `Mutation`, `Subscription`, `AuthPayload`, `User`. 
+>
+>`Link`, `Vote`, `LinkSubscriptionPayload`, `VoteSubscriptionPayload` are defined in `database/datamodel.graphql`.
 
 ### Scalar Types
-**Scalar types** represent the  leaves of the query.
+**Scalar types** represent the  leaves of the query. GraphQL comes with a set of default scalar types out of the box: `Int`, `Float`, `String`, `Boolean`, `ID`. 
 
 ### Enumeration Types
 **Enums** are a special kind of scalar that is restricted to a particular set of allowed values. This allows you to:
@@ -142,10 +170,18 @@ You set up your interface with the fields, arguments and return types which ever
 
 ### Root fields & Resolvers
 At the top level of every GraphQL server is a type that represents all of the possible entry points into the GraphQL API, it’s often called the Roottype or the Querytype.
-Each field on each type of a GraphQL query is backed by a function called the **resolver**, which is provided by the GraphQL server developer. When a fixed is executed, the corresponding resolver is called to produce the next value until it produces a scalar value.
+Each field on each type of a GraphQL query is backed by a function called the **resolver**, which is provided by the GraphQL server developer. This is where the actual 'queries'  are performed.
+
+>In this project, we have Mutation, Query and Subscription resolvers, executed for fields like `feed`, `token` & `user`
 
 ## Authentication
 When accessing a the Prisma db service over HTTP, you need to authenticate by attaching an authentication token to the `Authorization` header field.The `Prisma` instance in `index.js` recieves the `secret` as a constructor argument, so it can generate JWTs under the hood.
 
 > For simplicity, our application secret is defined as a global constant
+
+## GraphQL subscriptions
+
+**Subscriptions** are a GraphQL feature that allows the server to send data to the clients when a specific event happens. The client initially opens up a steady conneciton to the server by specifying which event it is interested in, usually through [Websockets](https://developer.mozilla.org/nl/docs/WebSockets).
+
+> In this project, we make use of Prisma, with comes with out-of-the-box support for subscriptions. Have a look at `src/generated/prisma.graphql`! - but they are also defined through GraphQL in the code. 
 

@@ -185,3 +185,4 @@ When accessing a the Prisma db service over HTTP, you need to authenticate by at
 
 > In this project, we make use of Prisma, with comes with out-of-the-box support for subscriptions. Have a look at `src/generated/prisma.graphql`! - but they are also defined through GraphQL in the code. 
 
+> _This Repository is created by Mimi Magusin. Her personal profile can be found [here](https://github.com/MimiMagusin), her Codaisseur Profile can be found [here](https://github.com/MimiMag)_
